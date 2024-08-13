@@ -1,4 +1,4 @@
-import OBR, { Image, Item } from '@owlbear-rodeo/sdk';
+import OBR, { Image, isImage, Item } from '@owlbear-rodeo/sdk';
 
 import { IDs, InitCard, InitListItem, StatTrack } from '../components/models';
 
@@ -13,11 +13,10 @@ export const setupInitiativeList = () => {
 
     for (const item of items) {
       const metadata = item.metadata[IDs.Meta] as InitListItem;
-      if (metadata) {
-        const i = item as Image;
+      if (metadata && isImage(item)) {
         initiativeItems.value.push({
-          id: i.id,
-          name: i.text.plainText ? i.text.plainText : i.name,
+          id: item.id,
+          name: item.text.plainText ? item.text.plainText : item.name,
           initiative: metadata.initiative,
           hp: metadata.hp,
           wp: metadata.wp,
@@ -32,9 +31,15 @@ export const setupInitiativeList = () => {
     );
   };
 
-  OBR.scene.items.updateItems((item): item is Item => (item.metadata[IDs.Meta] ? true : false), renderList);
+  const init = (sceneReady: boolean) => {
+    if (sceneReady) {
+      OBR.scene.items.onChange(renderList);
+      OBR.scene.items.getItems().then(renderList);
+    }
+  };
 
-  OBR.scene.items.onChange(renderList);
+  OBR.scene.onReadyChange(init);
+  OBR.scene.isReady().then(init);
 };
 
 export const drawCards = async () => {

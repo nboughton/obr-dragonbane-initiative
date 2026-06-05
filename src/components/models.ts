@@ -1,13 +1,13 @@
 export const ID = 'uk.nboughton.obr-db-initiative';
 
-export enum Site {
-  Path = '/apps/obr-dragonbane-initiative',
-}
+export const Site = {
+  Path: '/apps/obr-dragonbane-initiative',
+} as const
 
-export enum IDs {
-  Root = ID,
-  Meta = `${ID}/metadata`,
-}
+export const IDs = {
+  Root: ID,
+  Meta: `${ID}/metadata`,
+} as const
 
 export interface InitCard {
   card: number;

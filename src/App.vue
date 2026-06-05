@@ -1,3 +1,80 @@
+<template>
+  <div class="row items-center mb-sm">
+    <strong class="mr-sm">Max. Cards: {{ maxCards }}</strong>
+    <SvgIcon class="cog-btn" :path="mdiCog" @click="configDialog?.showModal()" />
+  </div>
+
+  <div class="mb-sm init-row" v-for="item in initiativeItems" :key="`init-${item.id}`">
+    <div class="row justify-between">
+      <div class="col mr-md init-title" @click="charOpen(item)">
+        {{ item.name }}
+      </div>
+
+      <div class="col">
+        <div class="row">
+          <InitCard v-for="(card, j) in item.initiative" :key="`card-${uid()}`" :card="card" :id="item.id" :index="j" />
+        </div>
+      </div>
+    </div>
+
+    <div v-if="role == 'GM'" class="row items-center justify-between">
+      <div v-if="item.hp.max != 0" class="col mt-sm">
+        <div class="row">
+          <SvgIcon class="mr-sm" :path="mdiHeart" :fill-pc="item.hp.cur / item.hp.max" />
+          {{ item.hp.max }}/{{ item.hp.cur }}
+        </div>
+      </div>
+      <div v-if="item.wp.max != 0" class="col mt-sm">
+        <div class="row">
+          <SvgIcon class="mr-sm" :path="mdiHead" :fill-pc="item.wp.cur / item.wp.max" />
+          {{ item.wp.max }}/{{ item.wp.cur }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <button class="row init-btn mt-md" @click="drawCards">DRAW INITIATIVE</button>
+
+  <dialog ref="configDialog">
+    <div class="card items-center justify-center">
+      <div class="row mb-md"><strong>Set Max. Cards</strong></div>
+      <input class="row full-width mb-md" type="number" v-model.number="maxCards" />
+
+      <button class="row full-width" @click="configDialog?.close()">DONE</button>
+    </div>
+  </dialog>
+
+  <dialog ref="charDialog">
+    <div class="card items-center justify-center">
+      <div class="row mb-md"><strong>Set Label</strong></div>
+      <input class="row full-width mb-md" type="text" v-model="charLabel" />
+
+      <div class="row" v-if="role == 'GM'">
+        <div class="col justify-center items-center">
+          <div class="row mb-sm"><strong>HP</strong></div>
+          <div class="row full-width mb-md">
+            <input type="number" class="col btn-group-left" placeholder="Max HP" v-model="charHP.max" />
+            <input type="number" class="col btn-group-right" placeholder="Cur. HP" v-model="charHP.cur"
+              :max="charHP.max" />
+          </div>
+
+          <div class="row mb-sm"><strong>WP</strong></div>
+          <div class="row full-width mb-md">
+            <input type="number" class="col btn-group-left" placeholder="Max WP" v-model="charWP.max" />
+            <input type="number" class="col btn-group-right" placeholder="Cur. WP" v-model="charWP.cur"
+              :max="charWP.max" />
+          </div>
+        </div>
+      </div>
+
+      <div class="row mb-md"><strong>Set Ferocity</strong></div>
+      <input class="row full-width mb-md" type="number" v-model.number="charFerocity" :min="1" />
+
+      <button class="row full-width" @click="charDone()">DONE</button>
+    </div>
+  </dialog>
+</template>
+
 <script setup lang="ts">
 import InitCard from './components/InitCard.vue';
 import SvgIcon from './components/SvgIcon.vue';
@@ -72,92 +149,7 @@ OBR.onReady(() => {
 });
 </script>
 
-<template>
-  <div class="row items-center mb-sm">
-    <strong class="mr-sm">Max. Cards: {{ maxCards }}</strong>
-    <SvgIcon class="cog-btn" :path="mdiCog" @click="configDialog?.showModal()" />
-  </div>
 
-  <div class="mb-sm init-row" v-for="item in initiativeItems" :key="`init-${item.id}`">
-    <div class="row justify-between">
-      <div class="col mr-md init-title" @click="charOpen(item)">
-        {{ item.name }}
-      </div>
-
-      <div class="col">
-        <div class="row">
-          <InitCard v-for="(card, j) in item.initiative" :key="`card-${uid()}`" :card="card" :id="item.id" :index="j" />
-        </div>
-      </div>
-    </div>
-
-    <div v-if="role == 'GM'" class="row items-center justify-between">
-      <div v-if="item.hp.max != 0" class="col mt-sm">
-        <div class="row">
-          <SvgIcon class="mr-sm" :path="mdiHeart" :fill-pc="item.hp.cur / item.hp.max" />
-          {{ item.hp.max }}/{{ item.hp.cur }}
-        </div>
-      </div>
-      <div v-if="item.wp.max != 0" class="col mt-sm">
-        <div class="row">
-          <SvgIcon class="mr-sm" :path="mdiHead" :fill-pc="item.wp.cur / item.wp.max" />
-          {{ item.wp.max }}/{{ item.wp.cur }}
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <button class="row init-btn mt-md" @click="drawCards">DRAW INITIATIVE</button>
-
-  <dialog ref="configDialog">
-    <div class="card items-center justify-center">
-      <div class="row mb-md"><strong>Set Max. Cards</strong></div>
-      <input class="row full-width mb-md" type="number" v-model.number="maxCards" />
-
-      <button class="row full-width" @click="configDialog?.close()">DONE</button>
-    </div>
-  </dialog>
-
-  <dialog ref="charDialog">
-    <div class="card items-center justify-center">
-      <div class="row mb-md"><strong>Set Label</strong></div>
-      <input class="row full-width mb-md" type="text" v-model="charLabel" />
-
-      <div class="row" v-if="role == 'GM'">
-        <div class="col justify-center items-center">
-          <div class="row mb-sm"><strong>HP</strong></div>
-          <div class="row full-width mb-md">
-            <input type="number" class="col btn-group-left" placeholder="Max HP" v-model="charHP.max" />
-            <input
-              type="number"
-              class="col btn-group-right"
-              placeholder="Cur. HP"
-              v-model="charHP.cur"
-              :max="charHP.max"
-            />
-          </div>
-
-          <div class="row mb-sm"><strong>WP</strong></div>
-          <div class="row full-width mb-md">
-            <input type="number" class="col btn-group-left" placeholder="Max WP" v-model="charWP.max" />
-            <input
-              type="number"
-              class="col btn-group-right"
-              placeholder="Cur. WP"
-              v-model="charWP.cur"
-              :max="charWP.max"
-            />
-          </div>
-        </div>
-      </div>
-
-      <div class="row mb-md"><strong>Set Ferocity</strong></div>
-      <input class="row full-width mb-md" type="number" v-model.number="charFerocity" :min="1" />
-
-      <button class="row full-width" @click="charDone()">DONE</button>
-    </div>
-  </dialog>
-</template>
 
 <style scoped>
 .init-card,

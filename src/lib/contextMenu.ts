@@ -1,4 +1,4 @@
-import { IDs, InitCard, Site } from '../components/models';
+import { IDs, type InitCard, Site } from '../components/models';
 
 import OBR from '@owlbear-rodeo/sdk';
 
